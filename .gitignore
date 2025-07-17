@@ -1,0 +1,33 @@
+# Node modules (frontend)
+frontend/node_modules/
+
+# Vite/React/JS build outputs (frontend)
+frontend/dist/
+frontend/build/
+
+# Python virtual environment
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Python test cache
+.pytest_cache/
+
+# Environment variable/config files
+*.env
+*.env.*
+
+# OS-generated files
+.DS_Store
+
+# IDE/editor settings (optional)
+.idea/
+.vscode/
+*.iml
+
+# Logs and coverage
+*.log
+coverage/
