@@ -74,7 +74,6 @@ When you use a Pydantic model, it is immediately clear what fields are required,
 - using `.model_dump()` method, you can easily convert the Pydantic model to a dictionary or JSON format when needed.
 - Or using the **kwargs unpacking with the pydantic model: `{pydantic_model_name}(**document)` to convert the dictionary to a Pydantic model.
 
-### So just remember, using pydantic model to validate the data, before doing db operations, we convert the pydantic model to a dictionary using `.model_dump()` method 
-
+### So just remember, using pydantic model to validate the data, before doing db operations, we convert the pydantic model to a dictionary using `.model_dump()` method
 ### When returning data, use `response_model =` and `-> intended_type:` in path operator decorator and functions to convert the dictionary to a Pydantic model automatically.
 ### OR using **kwargs unpacking with the pydantic model: `{pydantic_model_name}(**document)` to convert the dictionary to a Pydantic model.

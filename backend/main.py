@@ -62,26 +62,40 @@ async def get_todo_by_title(title: str) -> ToDo | None:
     raise HTTPException(status_code=404, detail="Todo not found")
 
 @app.post("/api/todo", response_model=ToDoResponse)
-async def create_todo(todo: ToDo) -> dict:
-    # print(repr(todo))
-    response = await db_create_todo(todo)
+async def create_todo(to_do: ToDo) -> dict:
+    """
+    This endpoint creates a new To_Do item in the database.
+    :param to_do: an instance of model containing the title and description.
+    :return: dictionary with a message and the created To_Do item.
+    """
+    response = await db_create_todo(to_do)
     if response:
+        # because here we return a raw dict contains to_do model object, fastapi will automatically convert it to the ToDoResponse model.
         return {"message": "Todo created", "to_do": response}
     raise HTTPException(status_code=400, detail="Error creating to_do")
 
-@app.put("/api/update_todo/{title}")
+@app.put("/api/update_todo/{title}", response_model=ToDoResponse)
 async def update_todo(title: str, desc: str) -> dict:
+    """
+    This endpoint updates an existing To_Do item in the mongodb by its title.
+    :param title: title to find the To_Do item.
+    :param desc: new task description.
+    :return: dictionary with a message and the updated To_Do item.
+    """
     response = await db_update_todo(title, desc)
     if response is None:
         raise HTTPException(status_code=404, detail="Todo not found")
-    return {"message": "Todo updated", "updated to_do is": response}
+    return {"message": "Todo updated successfully", "to_do": response}
 
 
 @app.delete("/api/remove_todo/{title}")
 async def delete_todo(title: str) -> dict:
-    # response = await delete_todo(title)
-    # return response
+    """
+    This endpoint deletes a To_Do item from mongodb by its title.
+    :param title: title to find the To_Do item.
+    :return: dictionary
+    """
     response = await db_delete_todo(title)
-    if response:
+    if response is True:
         return {"message": "Todo deleted successfully"}
-    raise HTTPException(status_code=404, detail="Todo not found")
+    raise HTTPException(status_code=404, detail="Todo not found or already deleted")
