@@ -20,32 +20,37 @@ database = client.TodoList
 collection = database.todos
 
 
-def todo_serializer(todo: ToDo) -> dict:
-    pass
+def todo_serializer(to_do: dict) -> dict:
+    """
+    This function convert a MongoDB document (which is a dictionary) into a dictionary with required key/value pairs.
+    The reason for this is we have defined a Pydantic model that expects specific fields.
+    And we want to return the data in a format that matches that model.
+    Also, as when inserting data into MongoDB, it will automatically add an "_id" field,
+    when we convert the document back to a Pydantic model for return, we need to first convert the retrieved document to a dictionary with the required fields.
+
+    :param to_do: this is the MongoDB document retrieved to be serialized.
+    :return: a dictionary with the required key/values.
+    """
+    return {"id": str(to_do["_id"]), "title": to_do["title"], "description": to_do["description"]}
 
 
-async def db_fetch_one_todo(title: str) -> ToDo | None:
+async def db_fetch_one_todo(title: str) -> dict | None:
     """
     Fetches a single To_Do item from the MongoDB collection based on its title.
     """
     document = await collection.find_one({"title": title})
-    # **kwargs unpacks the document dictionary into keyword arguments for the To_Do model.
-    document = ToDo(**document) if document else None
-    return document
+    return todo_serializer(document) if document else None
 
-async def db_fetch_all_todos() -> list[ToDo]:
+
+async def db_fetch_all_todos() -> list[dict | None]:
     """
-    Fetches all ToDos items from the MongoDB collection.
-    Important things here:
-    - when retrieving data from mongoDB, it returns as dict (underlying is actually BSON). need to convert dict into pydantic model
-    :return: list of To_Do items
+    Fetches all ToDos items from the MongoDB collection, it returns a list of dictionaries or None.
     """
     todos = []
     # uses mongodb cursor to fetch all documents in the "todos" collection.
     cursor = collection.find({})
     async for document in cursor:
-        # **kwargs unpacks the document dictionary into keyword arguments for the To_Do model.
-        todos.append(ToDo(**document))
+        todos.append(todo_serializer(document))
     return todos
 
 async def db_create_todo(to_do: ToDo) -> dict:
@@ -53,7 +58,11 @@ async def db_create_todo(to_do: ToDo) -> dict:
     when inserting data into MongoDB, it is important to convert the pydantic model object into a plain dictionary.
     so need to use model_dump() method.
     """
+    # using the model_dump() method to convert the Pydantic model to a dictionary before inserting into mongoDB.
+    # as mongoDB accept dictionaries/json as documents, NOT pydantic model object.
     document = to_do.model_dump()
+    print(repr(document))
+    document.pop("id", None)  # Remove the 'id' field if it exists, as MongoDB will generate its own '_id' field.
     await collection.insert_one(document)
     return document
 
