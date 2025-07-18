@@ -11,7 +11,7 @@ from model import ToDo, ToDoResponse
 
 app = FastAPI()
 
-origins = ["https://localhost:5173"]
+origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,20 +33,15 @@ It needs to be converted into a pre-defined Pydantic model to be returned.
 """
 
 @app.get("/api/todos", response_model=list[ToDo])
-async def get_all_todos() -> list[ToDo]:
+async def get_all_todos() -> list[ToDo | None]:
     """
     fetch all To_Dos from the database. Notice that we include the response_model in the path operation decorator,
     so fastapi will automatically validate and convert the response against the model.
     :return: list of To_Do objects
     """
     response = await db_fetch_all_todos()
-    # # note here below is the manual way of converting using the **kwargs unpacking operator, since we have defined the response_model in the decorator, no need to do this manually.
-    # if response:
-    #     ans = []
-    #     for each in response:
-    #         ans.append(ToDo(**each))
-    #     return ans
-
+    if response:
+        return response
     raise HTTPException(status_code=404, detail="No todos found")
 
 @app.get("/api/get_todo/{title}", response_model=ToDo)
