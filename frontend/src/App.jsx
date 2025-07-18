@@ -6,17 +6,22 @@ import ToDoItem from './components/ToDo.jsx'
 
 
 
-
 function App() {
+
+    // These are all the states need for the app, todoList is the variable holds all the retrieved todos from the backend
     const [todoList, setTodoList] = useState([{}]);
+    // title if for holding the user input for the title of the task
     const [title, setTitle] = useState("");
+    // description is for holding the user input for the description of the task
     const [description, setDescription] = useState("");
 
-    // use useEffect to fetch all the todos from the backend
+    // use axios to fetch the todos from the backend, note here, compared with using fetch API, axios is more convenient to use
+    // no need to manually parse the response as JSON, e.g: await data = response.json()
     const fetchTodos = async() => {
         try {
             const response = await axios.get("http://localhost:8000/api/todos")
-            console.log(response);
+            console.log("response of getting all todos from backend is: ", response);
+            // use the setter function to update the todoList state with the fetched data directly from the response.data
             setTodoList(response.data);
         } catch (error) {
             console.error("Error fetching todos:", error);
@@ -34,7 +39,7 @@ function App() {
                 "title": title.trim(),
                 "description": description.trim()
             })
-            console.log(response);
+            console.log("response of sending the POST request is:", response);
             // Clear the input fields after adding the task
             setTitle("");
             setDescription("")
@@ -51,6 +56,9 @@ function App() {
             return;
         }
         try {
+            // note here we are sending a PUT request but with a request body. This is because the backend PUT route is set like this:
+            // async def update_todo(update: ToDoUpdate) -> dict: (This ToDoUpdate is a Pydantic model that defines the structure of the request body)
+            // need to ensure that the request body matches the expected structure in the backend.
             const response = await axios.put("http://localhost:8000/api/update_todo", {
                 "title": title.trim(),
                 "description": description.trim()
