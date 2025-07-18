@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 # import all the database functions to interact with MongoDB, calling these functions under each path operation function
 from database import db_fetch_one_todo, db_fetch_all_todos, db_create_todo, db_update_todo, db_delete_todo
-from model import ToDo, ToDoResponse
+from model import ToDo, ToDoResponse, ToDoUpdate
 
 app = FastAPI()
 
@@ -69,15 +69,14 @@ async def create_todo(to_do: ToDo) -> dict:
         return {"message": "Todo created", "to_do": response}
     raise HTTPException(status_code=400, detail="Error creating to_do")
 
-@app.put("/api/update_todo/{title}", response_model=ToDoResponse)
-async def update_todo(title: str, desc: str) -> dict:
+@app.put("/api/update_todo", response_model=ToDoResponse)
+async def update_todo(update: ToDoUpdate) -> dict:
     """
     This endpoint updates an existing To_Do item in the mongodb by its title.
-    :param title: title to find the To_Do item.
-    :param desc: new task description.
+    :param update: an instance of ToDoUpdate model containing the title and new description.
     :return: dictionary with a message and the updated To_Do item.
     """
-    response = await db_update_todo(title, desc)
+    response = await db_update_todo(update.title, update.description)
     if response is None:
         raise HTTPException(status_code=404, detail="Todo not found")
     return {"message": "Todo updated successfully", "to_do": response}

@@ -51,7 +51,10 @@ function App() {
             return;
         }
         try {
-            const response = await axios.put(`http://localhost:8000/api/update_todo/${title}?desc=${encodeURIComponent(description.trim())}`);
+            const response = await axios.put("http://localhost:8000/api/update_todo", {
+                "title": title.trim(),
+                "description": description.trim()
+            });
             console.log(response)
             // Clear the input fields after adding the task
             setTitle("");

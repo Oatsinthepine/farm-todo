@@ -17,3 +17,13 @@ class ToDoResponse(BaseModel):
     """
     message: str
     to_do: ToDo
+
+class ToDoUpdate(BaseModel):
+    """
+    This is the model for updating a To-Do item using pydantic model for request body.
+    used to receive data from the request body via frontend PUT request.
+    usecase: frontend/src/App.jsx, updateTaskHandler function will send a PUT request contains request body, by using this model on responses_model in the path operation decorator,
+    it will automatically validate and convert the request body against the model.
+    """
+    title: str
+    description: str
